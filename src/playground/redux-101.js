@@ -1,23 +1,39 @@
 import { createStore } from 'redux';
 
-const incrementCount = (payload = {}) => ({
+// gets set to 1 if the object is not provided
+
+const incrementCount = ({ incrementBy = 1 } = {}) => ({
     type: 'INCREMENT',
-    incrementBy: typeof payload.incrementBy === 'number' ? payload.incrementBy : 1
+    incrementBy
 });
 
-// set up default state value in arguments, since there is not state when the function is called
-const store = createStore((state = { count: 0 }, action) => {
+const decrementCount = ({ decrementBy = 1 } = {}) => ({ 
+    type: 'DECREMENT',
+    decrementBy
+});
+
+const setCount = ({ count }) => ({
+    type: 'SET',
+    count
+});
+
+const resetCount = () => ({
+    type: 'RESET',
+});
+
+// Reducers
+// 1. reducers are pure functions, the output depends wholly on the input
+//     and doesn't rely on variabls outside the scope of the function
+
+const countReducer = (state = { count: 0 }, action) => {
     switch (action.type) {
         case 'INCREMENT':
-            // checks if the value was provided, if it isn't then increment by 1
-            const incrementBy = typeof action.incrementBy === 'number' ? action.incrementBy : 1;
             return {
-                count: state.count + incrementBy
+                count: state.count + action.incrementBy
             };
         case 'DECREMENT':
-            const decrementBy = typeof action.decrementBy === 'number' ? action.decrementBy : 1;
             return {
-                count: state.count - decrementBy
+                count: state.count - action.decrementBy
             };
         case 'SET':
             return {
@@ -30,7 +46,10 @@ const store = createStore((state = { count: 0 }, action) => {
         default:
             return state;
     }
-});
+};
+
+// set up default state value in arguments, since there is not state when the function is called
+const store = createStore(countReducer);
 
 // stop subscribe
 const unsubscribe = store.subscribe(() => {
@@ -46,20 +65,10 @@ store.dispatch(incrementCount({ incrementBy: 5 }));
 
 store.dispatch(incrementCount());
 
-store.dispatch({
-    type: 'RESET'
-});
+store.dispatch(resetCount());
 
-store.dispatch({
-    type: 'DECREMENT',
-});
+store.dispatch(decrementCount());
 
-store.dispatch({
-    type: 'DECREMENT',
-    decrementBy: 10
-});
+store.dispatch(decrementCount({ decrementBy: 10 }));
 
-store.dispatch({
-    type: 'SET',
-    count: 101
-});
+store.dispatch(setCount({ count: -101 }));
